@@ -2,10 +2,10 @@
 Keras implementation of Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks.<br/>
 cloned from [https://github.com/yhenon/keras-frcnn/](https://github.com/yhenon/keras-frcnn/)
 
-UPDATE:
+## UPDATE:
 - supporting inception_resnet_v2
 
-USAGE:
+## USAGE:
 - Both theano and tensorflow backends are supported. However compile times are very high in theano, and tensorflow is highly recommended.
 - `train_frcnn.py` can be used to train a model. To train on Pascal VOC data, simply do:
 `python train_frcnn.py -p /path/to/pascalvoc/`. 
@@ -34,21 +34,21 @@ images:
 
 
 
-NOTES:
+## NOTES:
 - config.py contains all settings for the train or test run. The default settings match those in the original Faster-RCNN
 paper. The anchor box sizes are [128, 256, 512] and the ratios are [1:1, 1:2, 2:1].
 - The theano backend by default uses a 7x7 pooling region, instead of 14x14 as in the frcnn paper. This cuts down compiling time slightly.
 - The tensorflow backend performs a resize on the pooling region, instead of max pooling. This is much more efficient and has little impact on results.
 
 
-Example output:
+## Example output:
 
 ![ex1](http://i.imgur.com/7Lmb2RC.png)
 ![ex2](http://i.imgur.com/h58kCIV.png)
 ![ex3](http://i.imgur.com/EbvGBaG.png)
 ![ex4](http://i.imgur.com/i5UAgLb.png)
 
-ISSUES:
+## ISSUES:
 
 - If you get this error:
 `ValueError: There is a negative shape in the graph!`    
