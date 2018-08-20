@@ -4,6 +4,8 @@ cloned from [https://github.com/yhenon/keras-frcnn/](https://github.com/yhenon/k
 
 ## UPDATE:
 - supporting inception_resnet_v2
+  - for use inception_resnet_v2 in keras.application as feature extractor, export inception_resnet_v2 model using Transper/export_imagenet.py
+  - if use original inception_resnet_v2 model as feature extractor, you can't load weight parameter on faster-rcnn 
 
 ## USAGE:
 - Both theano and tensorflow backends are supported. However compile times are very high in theano, and tensorflow is highly recommended.
