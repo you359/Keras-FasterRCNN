@@ -43,15 +43,16 @@ def get_new_img_size(width, height, img_min_side=600):
     if width <= height:
         f = float(img_min_side) / width
         resized_height = int(f * height)
-        resized_width = img_min_side
+        resized_width = int(img_min_side)
     else:
         f = float(img_min_side) / height
         resized_width = int(f * width)
-        resized_height = img_min_side
+        resized_height = int(img_min_side)
 
     return resized_width, resized_height
 
 
+# for balanced class
 class SampleSelector:
     def __init__(self, class_count):
         # ignore classes that have zero samples

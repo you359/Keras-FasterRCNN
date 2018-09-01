@@ -102,7 +102,7 @@ else:
 
 config_output_filename = options.config_filename
 
-with open(config_output_filename, 'r') as f_in:
+with open(config_output_filename, 'rb') as f_in:
     C = pickle.load(f_in)
 
 # turn off any data augmentation at test time
@@ -115,18 +115,20 @@ img_path = options.test_path
 
 def format_img(img, C):
     img_min_side = float(C.im_size)
-    (height,width,_) = img.shape
+    (height, width, _) = img.shape
 
     if width <= height:
-        f = img_min_side/width
+        f = float(img_min_side) / width
         new_height = int(f * height)
         new_width = int(img_min_side)
     else:
-        f = img_min_side/height
+        f = float(img_min_side) / height
         new_width = int(f * width)
         new_height = int(img_min_side)
-    fx = width/float(new_width)
-    fy = height/float(new_height)
+
+    fx = width / float(new_width)
+    fy = height / float(new_height)
+
     img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
     img = img[:, :, (2, 1, 0)]
     img = img.astype(np.float32)
@@ -144,8 +146,9 @@ class_mapping = C.class_mapping
 if 'bg' not in class_mapping:
     class_mapping['bg'] = len(class_mapping)
 
-class_mapping = {v: k for k, v in class_mapping.iteritems()}
+class_mapping = {v: k for k, v in class_mapping.items()}
 print(class_mapping)
+
 class_to_color = {class_mapping[v]: np.random.randint(0, 255, 3) for v in class_mapping}
 C.num_rois = int(options.num_rois)
 
@@ -157,9 +160,10 @@ else:
     input_shape_features = (None, None, 1024)
 
 
+# input placeholder 정의
 img_input = Input(shape=input_shape_img)
 roi_input = Input(shape=(C.num_rois, 4))
-feature_map_input = Input(shape=input_shape_features)
+feature_map_input = Input(shape=input_shape_features) #??
 
 # define the base network (resnet here, can be VGG, Inception, etc)
 shared_layers = nn.nn_base(img_input, trainable=True)
@@ -188,12 +192,12 @@ test_imgs = [s for s in all_imgs if s['imageset'] == 'test']
 T = {}
 P = {}
 for idx, img_data in enumerate(test_imgs):
-    print('{}/{}'.format(idx,len(test_imgs)))
+    print('{}/{}'.format(idx, len(test_imgs)))
     st = time.time()
     filepath = img_data['filepath']
 
+    # read image
     img = cv2.imread(filepath)
-
     X, fx, fy = format_img(img, C)
 
     if K.image_dim_ordering() == 'tf':
