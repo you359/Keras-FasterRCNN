@@ -3,6 +3,7 @@ import cv2
 import xml.etree.ElementTree as ET
 from tqdm import tqdm
 
+
 def get_data(input_path):
     all_imgs = []
     classes_count = {}
@@ -43,9 +44,11 @@ def get_data(input_path):
             for line in f:
                 val_files.append(line.strip() + '.jpg')
 
-        with open(imgsets_path_test) as f:
-            for line in f:
-                test_files.append(line.strip() + '.jpg')
+        # test-set not included in pascal VOC 2012
+        if os.path.isfile(imgsets_path_test):
+            with open(imgsets_path_test) as f:
+                for line in f:
+                    test_files.append(line.strip() + '.jpg')
 
         # 이미지셋 txt 파일 read 예외처리
         # try:
@@ -81,13 +84,16 @@ def get_data(input_path):
             element = et.getroot()
 
             element_objs = element.findall('object')
-            element_filename = element.find('filename').text + '.jpg'
+            # element_filename = element.find('filename').text + '.jpg'
+            element_filename = element.find('filename').text
             element_width = int(element.find('size').find('width').text)
             element_height = int(element.find('size').find('height').text)
 
             if len(element_objs) > 0:
                 annotation_data = {'filepath': os.path.join(imgs_path, element_filename), 'width': element_width,
                                    'height': element_height, 'bboxes': []}
+
+                annotation_data['image_id'] = idx
 
                 if element_filename in trainval_files:
                     annotation_data['imageset'] = 'trainval'
@@ -101,9 +107,10 @@ def get_data(input_path):
                     annotation_data['imageset'] = 'val'
                     exist_flag = True
 
-                if element_filename in test_files:
-                    annotation_data['imageset'] = 'test'
-                    exist_flag = True
+                if len(test_files) > 0:
+                    if element_filename in test_files:
+                        annotation_data['imageset'] = 'test'
+                        exist_flag = True
 
                     # if element_filename in trainval_files:
                     #     annotation_data['imageset'] = 'trainval'
