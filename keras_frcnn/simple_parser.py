@@ -39,8 +39,13 @@ def get_data(input_path):
                 all_imgs[filename]['width'] = cols
                 all_imgs[filename]['height'] = rows
                 all_imgs[filename]['bboxes'] = []
-                if np.random.randint(0,6) > 0:
-                    all_imgs[filename]['imageset'] = 'trainval'
+                
+                dice = np.random.randint(0,6)
+                
+                if dice > 1:
+                    all_imgs[filename]['imageset'] = 'train'
+                elif dice == 1:
+                    all_imgs[filename]['imageset'] = 'val'
                 else:
                     all_imgs[filename]['imageset'] = 'test'
 
