@@ -1,14 +1,15 @@
-import sys
 import os
-from keras.layers import *
-from keras.optimizers import *
+import sys
+
 # from keras.applications import *
 from inception_resnet_v2 import InceptionResnetV2_model
-from keras.regularizers import l2
-from keras.models import Model
-from keras.preprocessing.image import ImageDataGenerator
-from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from keras import backend as k
+from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
+from keras.layers import *
+from keras.models import Model
+from keras.optimizers import *
+from keras.preprocessing.image import ImageDataGenerator
+from keras.regularizers import l2
 
 # fix seed for reproducible results (only works on CPU, not GPU)
 seed = 9
@@ -17,18 +18,22 @@ tf.set_random_seed(seed=seed)
 
 # hyper parameters for model
 nb_classes = 15  # number of classes
-img_width, img_height = 299, 299  # change based on the shape/structure of your images
-batch_size = 32  # try 4, 8, 16, 32, 64, 128, 256 dependent on CPU/GPU memory capacity (powers of 2 values).
+# change based on the shape/structure of your images
+img_width, img_height = 299, 299
+# try 4, 8, 16, 32, 64, 128, 256 dependent on CPU/GPU memory capacity (powers of 2 values).
+batch_size = 32
 nb_epoch = 200  # number of iteration the algorithm gets trained.
 learn_rate = 1e-4  # sgd learning rate
 momentum = .9  # sgd momentum to avoid local minimum
-transformation_ratio = .05  # how aggressive will be the data augmentation/transformation
+# how aggressive will be the data augmentation/transformation
+transformation_ratio = .05
 
 
 def export(model_path):
     # Pre-Trained CNN Model using imagenet dataset for pre-trained weights
     # base_model = Xception(input_shape=(img_width, img_height, 3), weights='imagenet', include_top=False)
-    base_model = InceptionResnetV2_model(input_shape=(img_width, img_height, 3), include_top=False)
+    base_model = InceptionResnetV2_model(input_shape=(
+        img_width, img_height, 3), include_top=False)
 
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
