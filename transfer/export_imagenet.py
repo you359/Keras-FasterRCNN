@@ -36,11 +36,7 @@ def export(model_path):
 
 
 if __name__ == '__main__':
-    model_dir = './'
-
-    os.makedirs(model_dir, exist_ok=True)
-
-    export(model_dir)  # train model
+    export(os.getcwd())  # train model
 
     # release memory
     k.clear_session()
