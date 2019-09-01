@@ -4,7 +4,7 @@ cloned from [https://github.com/yhenon/keras-frcnn/](https://github.com/yhenon/k
 
 ## UPDATE:
 - supporting inception_resnet_v2
-  - for use inception_resnet_v2 in keras.application as feature extractor, create new inception_resnet_v2 model file using Transper/export_imagenet.py
+  - for use inception_resnet_v2 in keras.application as feature extractor, create new inception_resnet_v2 model file using transfer/export_imagenet.py
   - if use original inception_resnet_v2 model as feature extractor, you can't load weight parameter on faster-rcnn 
 
 ## USAGE:
