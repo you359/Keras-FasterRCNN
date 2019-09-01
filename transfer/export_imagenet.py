@@ -4,29 +4,14 @@ import sys
 # from keras.applications import *
 from inception_resnet_v2 import InceptionResnetV2_model
 from keras import backend as k
-from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from keras.layers import *
 from keras.models import Model
 from keras.optimizers import *
-from keras.preprocessing.image import ImageDataGenerator
-from keras.regularizers import l2
-
-# fix seed for reproducible results (only works on CPU, not GPU)
-seed = 9
-np.random.seed(seed=seed)
-tf.set_random_seed(seed=seed)
 
 # hyper parameters for model
-nb_classes = 15  # number of classes
+nb_classes = 1  # number of classes
 # change based on the shape/structure of your images
 img_width, img_height = 299, 299
-# try 4, 8, 16, 32, 64, 128, 256 dependent on CPU/GPU memory capacity (powers of 2 values).
-batch_size = 32
-nb_epoch = 200  # number of iteration the algorithm gets trained.
-learn_rate = 1e-4  # sgd learning rate
-momentum = .9  # sgd momentum to avoid local minimum
-# how aggressive will be the data augmentation/transformation
-transformation_ratio = .05
 
 
 def export(model_path):
