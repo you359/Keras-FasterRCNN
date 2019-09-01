@@ -16,9 +16,9 @@ img_width, img_height = 299, 299
 
 def export(model_path):
     # Pre-Trained CNN Model using imagenet dataset for pre-trained weights
-    # base_model = Xception(input_shape=(img_width, img_height, 3), weights='imagenet', include_top=False)
+    # base_model = InceptionResnetV2_model(input_shape=(img_width, img_height, 3), weights='imagenet', include_top=False)
     base_model = InceptionResnetV2_model(input_shape=(
-        img_width, img_height, 3), include_top=False)
+        img_width, img_height, 3), weights='imagenet', include_top=False)
 
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
