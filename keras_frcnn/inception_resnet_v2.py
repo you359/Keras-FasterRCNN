@@ -414,7 +414,8 @@ def classifier(base_layers, input_rois, num_rois, nb_classes=21, trainable=False
 
     if K.backend() == 'tensorflow':
         pooling_regions = 14
-        input_shape = (num_rois, 14, 14, 1024)
+        # Changed the input shape to 1088 from 1024 because of nn_base's output being 1088. Not sure if this is correct
+        input_shape = (num_rois, 14, 14, 1088)
     elif K.backend() == 'theano':
         pooling_regions = 7
         input_shape = (num_rois, 1024, 7, 7)
