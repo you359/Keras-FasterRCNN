@@ -3,3 +3,6 @@
 *.png
 *.txt
 *.h5
+*.pickle
+*.swp
+logs/
