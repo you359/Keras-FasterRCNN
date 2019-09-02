@@ -254,11 +254,20 @@ for epoch_num in range(num_epochs):
             if len(pos_samples) < C.num_rois//2:
                 selected_pos_samples = pos_samples.tolist()
             else:
-                selected_pos_samples = np.random.choice(pos_samples, C.num_rois//2, replace=False).tolist()
+                if len(pos_samples) > 0:
+                    selected_pos_samples = np.random.choice(pos_samples, C.num_rois//2, replace=False).tolist()
+                else:
+                    selected_pos_samples = []
             try:
-                selected_neg_samples = np.random.choice(neg_samples, C.num_rois - len(selected_pos_samples), replace=False).tolist()
+                if len(neg_samples) > 0:
+                    selected_neg_samples = np.random.choice(neg_samples, C.num_rois - len(selected_pos_samples), replace=False).tolist()
+                else:
+                    selected_neg_samples = []
             except:
-                selected_neg_samples = np.random.choice(neg_samples, C.num_rois - len(selected_pos_samples), replace=True).tolist()
+                if len(neg_samples) > 0:
+                    selected_neg_samples = np.random.choice(neg_samples, C.num_rois - len(selected_pos_samples), replace=True).tolist()
+                else:
+                    selected_neg_samples = []
 
             sel_samples = selected_pos_samples + selected_neg_samples
         else:
