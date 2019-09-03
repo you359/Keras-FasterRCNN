@@ -409,6 +409,8 @@ def classifier(base_layers, input_rois, num_rois, nb_classes=21, trainable=False
 
     # compile times on theano tend to be very high, so we use smaller ROI pooling regions to workaround
 
+    # Set learning phase to 0 for model.predict. Set to 1 for training
+    K.set_learning_phase(0)
     if K.backend() == 'tensorflow':
         pooling_regions = 14
         # Changed the input shape to 1088 from 1024 because of nn_base's output being 1088. Not sure if this is correct
