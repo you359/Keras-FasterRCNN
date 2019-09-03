@@ -109,7 +109,7 @@ if C.network == 'resnet50':
 elif C.network == 'xception':
     num_features = 1024
 elif C.network == 'inception_resnet_v2':
-    num_features = 1024
+    num_features = 1088
 elif C.network == 'vgg':
     num_features = 512
 
@@ -135,7 +135,6 @@ rpn_layers = nn.rpn(shared_layers, num_anchors)
 classifier = nn.classifier(feature_map_input, roi_input, C.num_rois, nb_classes=len(class_mapping), trainable=True)
 
 model_rpn = Model(img_input, rpn_layers)
-model_classifier_only = Model([feature_map_input, roi_input], classifier)
 
 model_classifier = Model([feature_map_input, roi_input], classifier)
 
@@ -196,7 +195,7 @@ for idx, img_name in enumerate(sorted(os.listdir(img_path))):
             ROIs_padded[0, curr_shape[1]:, :] = ROIs[0, 0, :]
             ROIs = ROIs_padded
 
-        [P_cls, P_regr] = model_classifier_only.predict([F, ROIs])
+        [P_cls, P_regr] = model_classifier.predict([F, ROIs])
 
         for ii in range(P_cls.shape[1]):
 
