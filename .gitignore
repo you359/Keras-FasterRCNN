@@ -1,0 +1,10 @@
+*.pyc
+*.jpg
+*.png
+*.txt
+*.h5
+*.hdf5
+*.pickle
+*.swp
+logs/
+.DS_Store

@@ -13,7 +13,7 @@ is also different (same as Inception V3).
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
+import os
 from keras.layers import Input, Dense, Activation, Flatten, Conv2D, MaxPooling2D, BatchNormalization, GlobalAveragePooling2D, AveragePooling2D, TimeDistributed, Concatenate, Lambda
 
 from keras import backend as K
@@ -23,10 +23,7 @@ from keras_frcnn.FixedBatchNormalization import FixedBatchNormalization
 
 
 def get_weight_path():
-    if K.image_dim_ordering() == 'th':
-        return 'inception_resnet_v2_weights_tf_dim_ordering_tf_kernels_notop.h5'
-    else:
-        return 'inception_resnet_v2_weights_tf_dim_ordering_tf_kernels.h5'
+    return os.path.join('keras_frcnn', 'weights','inception_resnet_v2.h5')
 
 
 def get_img_output_length(width, height):
@@ -414,7 +411,8 @@ def classifier(base_layers, input_rois, num_rois, nb_classes=21, trainable=False
 
     if K.backend() == 'tensorflow':
         pooling_regions = 14
-        input_shape = (num_rois, 14, 14, 1024)
+        # Changed the input shape to 1088 from 1024 because of nn_base's output being 1088. Not sure if this is correct
+        input_shape = (num_rois, 14, 14, 1088)
     elif K.backend() == 'theano':
         pooling_regions = 7
         input_shape = (num_rois, 1024, 7, 7)
