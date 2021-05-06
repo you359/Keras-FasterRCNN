@@ -11,6 +11,12 @@ from keras import backend as K
 from keras.layers import Input
 from keras.models import Model
 from keras_frcnn import roi_helpers
+import pandas as pd
+from sklearn.metrics import precision_recall_curve,PrecisionRecallDisplay, average_precision_score, roc_curve, auc, RocCurveDisplay
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_auc_score
+
+from keras_frcnn.data_generators import  iou
 
 # Set learning phase to 0 for model.predict. Set to 1 for training
 K.set_learning_phase(0)
@@ -51,8 +57,8 @@ elif C.network == 'vgg':
 C.use_horizontal_flips = False
 C.use_vertical_flips = False
 C.rot_90 = False
-
 img_path = options.test_path
+
 
 def format_img_size(img, C):
     """ formats the image size based on config """
@@ -153,14 +159,44 @@ all_imgs = []
 
 classes = {}
 
-bbox_threshold = 0.8
+
+#Threshold
+bbox_threshold = 0.6
 
 visualise = True
 
+test_images = pd.read_csv('test.txt', delimiter = ",")
+print(test_images)
+
+
+true_positives = 0
+
+false_negatives = 0
+
+false_positives = 0
+
+true_negatives = 0
+
+iou_threshold = 0.5
+
+all = 0
+
+y_preds = []
+y_true = []
+
 for idx, img_name in enumerate(sorted(os.listdir(img_path))):
-    if not img_name.lower().endswith(('.bmp', '.jpeg', '.jpg', '.png', '.tif', '.tiff')):
+    if not img_name.lower().endswith(('.bmp', '.jpeg', '.jpg', '.png', '.tif', '.tiff', '.ppm')):
         continue
+    print(img_path)
     print(img_name)
+    try:
+        realBox = test_images.loc[test_images['PATH'] == f"{img_path}{img_name}", ['x1','y1','x2','y2']].to_numpy()[0]
+    except Exception as e:
+        print("ola")
+        print(e)
+        continue
+
+
     st = time.time()
     filepath = os.path.join(img_path,img_name)
 
@@ -174,9 +210,11 @@ for idx, img_name in enumerate(sorted(os.listdir(img_path))):
     # get the feature maps and output from the RPN
     [Y1, Y2, F] = model_rpn.predict(X)
 
+    print(f"Y1 - {Y1} \n\n Y2 - {Y2} \n\n F - {F}")
+    exit()
+
 
     R = roi_helpers.rpn_to_roi(Y1, Y2, C, K.image_dim_ordering(), overlap_thresh=0.7)
-
     # convert from (x1,y1,x2,y2) to (x,y,w,h)
     R[:, 2] -= R[:, 0]
     R[:, 3] -= R[:, 1]
@@ -228,15 +266,25 @@ for idx, img_name in enumerate(sorted(os.listdir(img_path))):
             probs[cls_name].append(np.max(P_cls[0, ii, :]))
 
     all_dets = []
+    best = False
+    value = 0
+
 
     for key in bboxes:
         bbox = np.array(bboxes[key])
 
-        new_boxes, new_probs = roi_helpers.non_max_suppression_fast(bbox, np.array(probs[key]), overlap_thresh=0.5)
+        new_boxes, new_probs = roi_helpers.non_max_suppression_fast(bbox, np.array(probs[key]), overlap_thresh=0.7)
         for jk in range(new_boxes.shape[0]):
             (x1, y1, x2, y2) = new_boxes[jk,:]
 
             (real_x1, real_y1, real_x2, real_y2) = get_real_coordinates(ratio, x1, y1, x2, y2)
+            predBox = (real_x1, real_y1, real_x2, real_y2)
+
+            iou_value = iou(realBox,predBox)
+
+            if iou_value > iou_threshold:
+                best = True
+                value = iou_value
 
             cv2.rectangle(img,(real_x1, real_y1), (real_x2, real_y2), (int(class_to_color[key][0]), int(class_to_color[key][1]), int(class_to_color[key][2])),2)
 
@@ -250,8 +298,59 @@ for idx, img_name in enumerate(sorted(os.listdir(img_path))):
             cv2.rectangle(img, (textOrg[0] - 5,textOrg[1]+baseLine - 5), (textOrg[0]+retval[0] + 5, textOrg[1]-retval[1] - 5), (255, 255, 255), -1)
             cv2.putText(img, textLabel, textOrg, cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 0), 1)
 
-    print('Elapsed time = {}'.format(time.time() - st))
-    print(all_dets)
+
+
+    #If any bounding box was found
+    if len(all_dets) != 0:
+        print(test_images[test_images['PATH'] == f"{img_path}{img_name}"].to_numpy()[0][-1])
+        y_true.append(test_images[test_images['PATH'] == f"{img_path}{img_name}"].to_numpy()[0][-1])
+        #If the iou is above the threshold
+        if best:
+            y_preds.append(value)
+            true_positives += 1
+            all += 1
+        #If the iou is below the threshold
+        else:
+            y_preds.append(0)
+            false_positives += 1
+            all += 1
+
+    #If no bounding boxes were found
+    else:
+        y_true.append(test_images[test_images['PATH'] == f"{img_path}{img_name}"].to_numpy()[0][-1])
+        y_preds.append(0)
+        #If there was an object and no bounding box  was found then it's false negative
+        if test_images.loc[test_images['PATH'] == f"{img_path}{img_name}", ['class']].iloc[0].to_numpy()[0] == 1:
+
+            false_negatives += 1
+            all += 1
+        else:
+            true_negatives += 1
+            all += 1
+
+
+    print(f"False Negatives {false_negatives} \n"
+          f"True  Negatives {true_negatives} \n"
+          f"True  Positives {true_positives} \n"
+          f"False Positives {false_positives}")
     #cv2.imshow('img', img)
     #cv2.waitKey(0)
     cv2.imwrite('./results_imgs/{}.png'.format(idx),img)
+
+
+
+
+#Calculate mAP
+mAP = average_precision_score(y_true, y_preds)
+
+
+print(f"Model's mAP: {mAP}")
+
+precision, recall, thresholds = precision_recall_curve(y_true, y_preds)
+
+disp = PrecisionRecallDisplay(precision=precision, recall=recall)
+disp.plot()
+plt.show()
+
+
+
