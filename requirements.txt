@@ -20,7 +20,7 @@ PyYAML==5.1.2
 scipy==1.2.2
 six==1.12.0
 tensorboard==1.14.0
-tensorflow==1.14.0
+tensorflow==2.5.1
 tensorflow-estimator==1.14.0
 termcolor==1.1.0
 Theano==1.0.4
