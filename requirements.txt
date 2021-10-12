@@ -14,7 +14,7 @@ Keras-Preprocessing==1.1.0
 Markdown==3.1.1
 mock==3.0.5
 numpy==1.16.5
-opencv-python==4.1.0.25
+opencv-python==4.1.1.26
 protobuf==3.9.1
 PyYAML==5.1.2
 scipy==1.2.2
